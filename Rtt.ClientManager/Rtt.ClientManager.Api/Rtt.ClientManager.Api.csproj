@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NuGetAuditLevel>moderate</NuGetAuditLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rtt.ClientManager.Bussiness\Rtt.ClientManager.Bussiness.csproj" />
+    <ProjectReference Include="..\Rtt.ClientManager.Common\Rtt.ClientManager.Common.csproj" />
+    <ProjectReference Include="..\Rtt.ClientManager.Data\Rtt.ClientManager.Data.csproj" />
+    <ProjectReference Include="..\Rtt.ClientManager.Web\Rtt.ClientManager.Web.fsproj" />
+  </ItemGroup>
+
+</Project>

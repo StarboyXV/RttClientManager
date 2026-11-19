@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Rtt.ClientManager.Api/Rtt.ClientManager.Api.csproj" />
+  <Project Path="Rtt.ClientManager.Bussiness/Rtt.ClientManager.Bussiness.csproj" />
+  <Project Path="Rtt.ClientManager.Common/Rtt.ClientManager.Common.csproj" />
+  <Project Path="Rtt.ClientManager.Data/Rtt.ClientManager.Data.csproj" />
+  <Project Path="Rtt.ClientManager.Web/Rtt.ClientManager.Web.fsproj" />
+</Solution>

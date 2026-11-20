@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Rtt.ClientManager.Common\Rtt.ClientManager.Common.csproj" />
+    <ProjectReference Include="..\Rtt.ClientManager.Data\Rtt.ClientManager.Data.csproj" />
+  </ItemGroup>
+
 </Project>

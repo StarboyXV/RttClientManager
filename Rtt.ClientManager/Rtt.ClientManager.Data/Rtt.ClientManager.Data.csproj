@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Rtt.ClientManager.Common\Rtt.ClientManager.Common.csproj" />
+  </ItemGroup>
+
 </Project>

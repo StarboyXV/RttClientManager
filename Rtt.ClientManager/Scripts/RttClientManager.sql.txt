@@ -1,0 +1,146 @@
+-- ============================================================================
+-- RTT Client Manager - Database Setup
+-- ============================================================================
+
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'RTTClientManagerDb')
+BEGIN
+    CREATE DATABASE RTTClientManagerDb;
+END
+GO
+
+USE RTTClientManagerDb;
+GO
+
+-- ============================================================================
+-- 1. Drop Existing Tables (Reverse Dependency Order for Clean Reset)
+-- ============================================================================
+IF OBJECT_ID('dbo.ContactDetails', 'U') IS NOT NULL DROP TABLE dbo.ContactDetails;
+IF OBJECT_ID('dbo.Addresses', 'U') IS NOT NULL DROP TABLE dbo.Addresses;
+IF OBJECT_ID('dbo.Clients', 'U') IS NOT NULL DROP TABLE dbo.Clients;
+IF OBJECT_ID('dbo.ContactTypes', 'U') IS NOT NULL DROP TABLE dbo.ContactTypes;
+IF OBJECT_ID('dbo.AddressTypes', 'U') IS NOT NULL DROP TABLE dbo.AddressTypes;
+GO
+
+-- ============================================================================
+-- 2. Lookup Tables
+-- ============================================================================
+CREATE TABLE dbo.AddressTypes (
+    AddressTypeId INT IDENTITY(1,1) NOT NULL,
+    Description   NVARCHAR(50) NOT NULL,
+    CONSTRAINT PK_AddressTypes PRIMARY KEY CLUSTERED (AddressTypeId ASC),
+    CONSTRAINT UQ_AddressTypes_Description UNIQUE (Description)
+);
+GO
+
+CREATE TABLE dbo.ContactTypes (
+    ContactTypeId INT IDENTITY(1,1) NOT NULL,
+    Description   NVARCHAR(50) NOT NULL,
+    CONSTRAINT PK_ContactTypes PRIMARY KEY CLUSTERED (ContactTypeId ASC),
+    CONSTRAINT UQ_ContactTypes_Description UNIQUE (Description)
+);
+GO
+
+-- ============================================================================
+-- 3. Core Entity Tables
+-- ============================================================================
+CREATE TABLE dbo.Clients (
+    ClientId    INT IDENTITY(1,1) NOT NULL,
+    FirstName   NVARCHAR(100) NOT NULL,
+    LastName    NVARCHAR(100) NOT NULL,
+    Gender      NVARCHAR(20) NOT NULL,
+    IdNumber    NVARCHAR(20) NULL,
+    DateOfBirth DATE NULL,
+    CreatedDate DATETIME2(0) NOT NULL CONSTRAINT DF_Clients_CreatedDate DEFAULT (SYSUTCDATETIME()),
+    CONSTRAINT PK_Clients PRIMARY KEY CLUSTERED (ClientId ASC)
+);
+GO
+
+CREATE TABLE dbo.Addresses (
+    AddressId     INT IDENTITY(1,1) NOT NULL,
+    ClientId      INT NOT NULL,
+    AddressTypeId INT NOT NULL,
+    StreetAddress NVARCHAR(250) NOT NULL,
+    Suburb        NVARCHAR(100) NULL,
+    City          NVARCHAR(100) NOT NULL,
+    PostalCode    NVARCHAR(20) NOT NULL,
+    CONSTRAINT PK_Addresses PRIMARY KEY CLUSTERED (AddressId ASC),
+    CONSTRAINT FK_Addresses_Clients FOREIGN KEY (ClientId) 
+        REFERENCES dbo.Clients (ClientId) ON DELETE CASCADE,
+    CONSTRAINT FK_Addresses_AddressTypes FOREIGN KEY (AddressTypeId) 
+        REFERENCES dbo.AddressTypes (AddressTypeId)
+);
+GO
+
+CREATE TABLE dbo.ContactDetails (
+    ContactId     INT IDENTITY(1,1) NOT NULL,
+    ClientId      INT NOT NULL,
+    ContactTypeId INT NOT NULL,
+    ContactValue  NVARCHAR(150) NOT NULL,
+    CONSTRAINT PK_ContactDetails PRIMARY KEY CLUSTERED (ContactId ASC),
+    CONSTRAINT FK_ContactDetails_Clients FOREIGN KEY (ClientId) 
+        REFERENCES dbo.Clients (ClientId) ON DELETE CASCADE,
+    CONSTRAINT FK_ContactDetails_ContactTypes FOREIGN KEY (ContactTypeId) 
+        REFERENCES dbo.ContactTypes (ContactTypeId)
+);
+GO
+
+-- ============================================================================
+-- 4. Performance Indexes (Critical for 100,000+ Records)
+-- ============================================================================
+-- Speeds up UI pagination, sorting, and name search
+CREATE NONCLUSTERED INDEX IX_Clients_LastName_FirstName 
+ON dbo.Clients (LastName ASC, FirstName ASC)
+INCLUDE (Gender, IdNumber);
+GO
+
+-- Speeds up child lookups and the bulk LEFT JOIN CSV export
+CREATE NONCLUSTERED INDEX IX_Addresses_ClientId 
+ON dbo.Addresses (ClientId ASC)
+INCLUDE (AddressTypeId, StreetAddress, Suburb, City, PostalCode);
+GO
+
+-- Speeds up loading contact details per client
+CREATE NONCLUSTERED INDEX IX_ContactDetails_ClientId 
+ON dbo.ContactDetails (ClientId ASC)
+INCLUDE (ContactTypeId, ContactValue);
+GO
+
+-- ============================================================================
+-- 5. Seed Lookup Data & Sample Records
+-- ============================================================================
+INSERT INTO dbo.AddressTypes (Description)
+VALUES 
+    (N'Residential Address'),
+    (N'Work Address'),
+    (N'Postal Address');
+GO
+
+INSERT INTO dbo.ContactTypes (Description)
+VALUES 
+    (N'Cell Number'),
+    (N'Work Number'),
+    (N'Home Number'),
+    (N'Email Address');
+GO
+
+-- Feeding a couple of sample clients to test
+INSERT INTO dbo.Clients (FirstName, LastName, Gender, IdNumber, DateOfBirth)
+VALUES 
+    (N'Thabo', N'Mokoena', N'Male', N'8804125123081', '1988-04-12'),
+    (N'Sarah', N'Van Der Merwe', N'Female', N'9209230184089', '1992-09-23');
+GO
+
+INSERT INTO dbo.Addresses (ClientId, AddressTypeId, StreetAddress, Suburb, City, PostalCode)
+VALUES 
+    (1, 1, N'42 Jan Smuts Avenue', N'Rosebank', N'Johannesburg', N'2196'),
+    (1, 2, N'100 Rivonia Road', N'Sandton', N'Johannesburg', N'2196'),
+    (2, 1, N'15 Kloof Street', N'Gardens', N'Cape Town', N'8001');
+GO
+
+INSERT INTO dbo.ContactDetails (ClientId, ContactTypeId, ContactValue)
+VALUES 
+    (1, 1, N'082 555 1234'),
+    (1, 2, N'011 444 5678'),
+    (1, 4, N'thabo.m@example.co.za'),
+    (2, 1, N'073 987 6543');
+GO

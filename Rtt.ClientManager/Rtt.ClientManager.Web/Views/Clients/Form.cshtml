@@ -7,7 +7,7 @@
 <h2>@ViewData["Title"]</h2>
 <hr />
 
-<form asp-action="@(isEdit ? " Edit" : "Create" )" asp-route-id="@Model.Client.ClientId" method="post">
+<form asp-action="@(isEdit ? "Edit" : "Create" )" asp-route-id="@Model.Client.ClientId" method="post">
     <input type="hidden" asp-for="Client.ClientId" />
 
     @if (!ViewData.ModelState.IsValid)

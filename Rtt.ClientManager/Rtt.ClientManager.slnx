@@ -3,5 +3,5 @@
   <Project Path="Rtt.ClientManager.Bussiness/Rtt.ClientManager.Bussiness.csproj" />
   <Project Path="Rtt.ClientManager.Common/Rtt.ClientManager.Common.csproj" />
   <Project Path="Rtt.ClientManager.Data/Rtt.ClientManager.Data.csproj" />
-  <Project Path="Rtt.ClientManager.Web/Rtt.ClientManager.Web.fsproj" />
+  <Project Path="Rtt.ClientManager.Web/Rtt.ClientManager.Web.csproj" Id="fb6ca798-a57b-4bd5-a52c-f43885425db8" />
 </Solution>
